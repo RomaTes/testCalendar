@@ -13,178 +13,179 @@ import Search from './primitives/search.tsx';
 
 function CalendarComp() {
 
-    const [dataHollidays, setData] = React.useState(null);
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const [Days, setDataDays] = React.useState(null);
-    const [startDay, setStartDay] = React.useState(null);
-    const [activeMonth, setActiveMonth] = React.useState(null);
-    const [choosenDay, setChoosenDay] = React.useState(null);
-    const [choosenTaskWrap, setchoosenTaskWrap] = React.useState(null);
-    const [choosenTasksParent, choosenTasksParentWrap] = React.useState(null);
+  const [dataHollidays, setData] = React.useState(null);
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const [Days, setDataDays] = React.useState(null);
+  const [startDay, setStartDay] = React.useState(null);
+  const [activeMonth, setActiveMonth] = React.useState(null);
+  const [choosenDay, setChoosenDay] = React.useState(null);
+  const [choosenTaskWrap, setchoosenTaskWrap] = React.useState(null);
+  const [choosenTasksParent, choosenTasksParentWrap] = React.useState(null);
 
-    const [isFormOpen, changeFormState] = React.useState(false);
-    const [draggedTask, setDraggedTask] = React.useState(null);
+  const [isFormOpen, changeFormState] = React.useState(false);
+  const [draggedTask, setDraggedTask] = React.useState(null);
 
-    const [activeYear, setActiveYear] = React.useState(2023);
+  const [activeYear, setActiveYear] = React.useState(2023);
 
-    const [choosenColor, setChoosenColor] = React.useState('rgb(128, 0, 0)');
-    const [taskTekst, setTaskTekst] = React.useState('');
+  const [choosenColor, setChoosenColor] = React.useState('rgb(128, 0, 0)');
+  const [taskTekst, setTaskTekst] = React.useState('');
 
-    const [hoolidaysForThisMonth, setHollidaysthisMonth] = React.useState([]);
+  const [hoolidaysForThisMonth, setHollidaysthisMonth] = React.useState([]);
 
-    const [taskList, setTasks] = React.useState([]);
+  const [taskList, setTasks] = React.useState([]);
 
-    const changeMonth = React.useCallback((value) => {
 
-      const month = value < 0 ? 11 : value > 11 ? 0 : value;
+
+  React.useEffect(() => {
+    changeMonth(activeMonth);
+  }, [taskList]);
+
+  React.useEffect(() => {
+    setHollidays();
+  }, [Days,dataHollidays]);
+
+  React.useEffect(() => {
+    fetch("https://date.nager.at/api/v3/publicholidays/2023/UA")
+      .then(response => response.json())
+      .then(data => {
+          setData(data);
+      })
+      .catch(error => console.error(error));
       const currentDate = new Date();
+
+      const currentMonth = currentDate.getMonth();
       const currentYear = currentDate.getFullYear();
+      createCalendar(currentMonth, currentYear);
+  }, []);
 
-      createCalendar(month, currentYear);
-     
-      const allTasks = document.querySelectorAll(".task-cell");
+  const changeMonth = React.useCallback((value) => {
 
-      for(let i = 0; i < allTasks.length; i++) allTasks[i]?.remove();   
-        
-      const taskForThisMonth = taskList.filter(v => v.year === currentYear).filter(v => v.month === month);
-      taskForThisMonth.sort((a, b) => a.position - b.position);
-      for(let i = 0; i < taskForThisMonth.length; i++){
-        const wrapp = document.querySelectorAll('.tasks')[taskForThisMonth [i].day - 1];
-        const newDiv = document.createElement('div');
-        newDiv.classList.add('task-cell');
-        newDiv.setAttribute("draggable","true");
-        newDiv.innerHTML = taskForThisMonth[i].inputValue;
-        newDiv.textContent = taskForThisMonth[i].inputValue;
-        newDiv.style.background = taskForThisMonth[i].colorValue;
-        newDiv.classList.add(taskForThisMonth[i].id);
+    const month = value < 0 ? 11 : value > 11 ? 0 : value;
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
 
-        wrapp.addEventListener("dragstart",    function(e) {
-          handleDragStart(e, e.target)
-        });
+    createCalendar(month, currentYear);
+    
+    const allTasks = document.querySelectorAll(".task-cell");
 
-        wrapp.appendChild(newDiv);
-      }
+    for(let i = 0; i < allTasks.length; i++) allTasks[i]?.remove();   
       
-      
-    }, [taskList]);
+    const taskForThisMonth = taskList.filter(v => v.year === currentYear).filter(v => v.month === month);
+    taskForThisMonth.sort((a, b) => a.position - b.position);
+    for(let i = 0; i < taskForThisMonth.length; i++){
+      const wrapp = document.querySelectorAll('.tasks')[taskForThisMonth [i].day - 1];
+      const newDiv = document.createElement('div');
+      newDiv.classList.add('task-cell');
+      newDiv.setAttribute("draggable","true");
+      newDiv.innerHTML = taskForThisMonth[i].inputValue;
+      newDiv.textContent = taskForThisMonth[i].inputValue;
+      newDiv.style.background = taskForThisMonth[i].colorValue;
+      newDiv.classList.add(taskForThisMonth[i].id);
 
-    React.useEffect(() => {
-      changeMonth(activeMonth);
-    }, [taskList]);
+      wrapp.addEventListener("dragstart",    function(e) {
+        handleDragStart(e, e.target)
+      });
 
-    React.useEffect(() => {
-      fetch("https://date.nager.at/api/v3/publicholidays/2023/UA")
-        .then(response => response.json())
-        .then(data => {
-            setData(data);
-        })
-        .catch(error => console.error(error));
-        const currentDate = new Date();
-
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-        createCalendar(currentMonth, currentYear);
-    }, []);
-
-    React.useEffect(() => {
-      setHollidays();
-    }, [Days,dataHollidays]);
-
-
-    const setHollidays = () => {
-      const hollidaysThisMonth = [];
-      if(Days && dataHollidays) {
-        for(let i = 0; i < Days.length; i++) {
-            const dateHolliday = `${activeYear }-${activeMonth.length === 2 ? (activeMonth + 1)  : ('0' + (activeMonth + 1))}-${String(Days[i]).length === 2 ? (Days[i])  : ('0' + (Days[i]))}`;
-            const holliday = dataHollidays.find(v => v.date === dateHolliday);
-
-            if(holliday) hollidaysThisMonth.push(holliday);
-        }
-      }
-      setHollidaysthisMonth(hollidaysThisMonth);
-    };
-
-    const handleDragStart = (e, task) => {
-      setDraggedTask(task);
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/html', e.target.parentNode);
-    };
-  
-    const handleDrop = (e, day) => {
-      const classList = draggedTask.classList;
-      const lastClass = classList.item(classList.length - 1);
-
-      const changedElement = taskList.find(v => v.id === lastClass);
-      const indexOfChangedelement = taskList.indexOf(changedElement);
-      const taskListClone = [...taskList];
-      taskListClone[indexOfChangedelement].day = day;
-
-      e.preventDefault();
-      if (draggedTask) {
-        const parent = e.target.closest('.day');
-        parent.querySelector('.tasks').appendChild(draggedTask);
-        parent.classList.remove('drag-over');
-
-        const elemList = parent.querySelectorAll('.task-cell');
-
-        for(let i = 0;i < elemList.length;i++) {
-          const lastClassElem = elemList[i].classList.item(elemList[i].classList.length - 1);
-          const changedElementFromList = taskList.find(v => v.id === lastClassElem);
-          const indexOfChangedelementFromList = taskList.indexOf(changedElementFromList);
-          taskListClone[indexOfChangedelementFromList].position = i + 1;
-        }
-      }
-      setTasks(taskListClone);
-    };
-
-    function createCalendar(month, year) {
-      const calendarDays = calendar.createCalendar(month, year);
-      setActiveMonth(month);
-      setDataDays(calendarDays.allDaysInMonth);
-      setStartDay(calendarDays.emptyDays);
+      wrapp.appendChild(newDiv);
     }
+    
+    
+  }, [taskList]);
 
-    const handleData = (childData) => {
-      const id = Date.now();
-      if(childData.inputValue) {
-        if(choosenTasksParent){
-        choosenTaskWrap.addEventListener("dragstart",    function(e) {
-          handleDragStart(e, e.target);
-        }
-        );
-       
-        choosenTaskWrap.textContent = childData.inputValue;
-        choosenTaskWrap.style.background = childData.colorValue;
-        choosenTaskWrap.classList.add(String(id));
-        const positionList = choosenTasksParent.querySelectorAll('.task-cell');
-        let position = 1;
-        if(positionList.length > 0) {
-          position = positionList.length + 1;
-        }
-        choosenTasksParent.appendChild(choosenTaskWrap);
-        
-        const listClone = [...taskList];
+  const setHollidays = () => {
+    const hollidaysThisMonth = [];
+    if(Days && dataHollidays) {
+      for(let i = 0; i < Days.length; i++) {
+          const dateHolliday = `${activeYear }-${activeMonth.length === 2 ? (activeMonth + 1)  : ('0' + (activeMonth + 1))}-${String(Days[i]).length === 2 ? (Days[i])  : ('0' + (Days[i]))}`;
+          const holliday = dataHollidays.find(v => v.date === dateHolliday);
 
-        const elem = Object.assign(childData,{ id: String(id), month: activeMonth, year: activeYear, title: childData.inputValue, day: choosenDay, position: position });
-        listClone.push(elem);
-
-        setTasks(listClone);
-      } else {
-        choosenTaskWrap.textContent = childData.inputValue;
-        choosenTaskWrap.style.background = childData.colorValue;
-        const lastClass = choosenTaskWrap.classList.item(choosenTaskWrap.classList.length - 1);
-        const listClone = [...taskList];
-        const elem = listClone.find(v  => v.id === lastClass); 
-        const indexOf = listClone.indexOf(elem);
-        listClone[indexOf].inputValue = childData.inputValue;
-        listClone[indexOf].colorValue = childData.colorValue;
-
-        setTasks(listClone);
+          if(holliday) hollidaysThisMonth.push(holliday);
       }
+    }
+    setHollidaysthisMonth(hollidaysThisMonth);
+  };
+
+  const handleDragStart = (e, task) => {
+    setDraggedTask(task);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.target.parentNode);
+  };
+  
+  const handleDrop = (e, day) => {
+    const classList = draggedTask.classList;
+    const lastClass = classList.item(classList.length - 1);
+
+    const changedElement = taskList.find(v => v.id === lastClass);
+    const indexOfChangedelement = taskList.indexOf(changedElement);
+    const taskListClone = [...taskList];
+    taskListClone[indexOfChangedelement].day = day;
+
+    e.preventDefault();
+    if (draggedTask) {
+      const parent = e.target.closest('.day');
+      parent.querySelector('.tasks').appendChild(draggedTask);
+      parent.classList.remove('drag-over');
+
+      const elemList = parent.querySelectorAll('.task-cell');
+
+      for(let i = 0;i < elemList.length;i++) {
+        const lastClassElem = elemList[i].classList.item(elemList[i].classList.length - 1);
+        const changedElementFromList = taskList.find(v => v.id === lastClassElem);
+        const indexOfChangedelementFromList = taskList.indexOf(changedElementFromList);
+        taskListClone[indexOfChangedelementFromList].position = i + 1;
       }
-      changeFormState(false);
-    };
+    }
+    setTasks(taskListClone);
+  };
+
+  function createCalendar(month, year) {
+    const calendarDays = calendar.createCalendar(month, year);
+    setActiveMonth(month);
+    setDataDays(calendarDays.allDaysInMonth);
+    setStartDay(calendarDays.emptyDays);
+  }
+
+  const handleData = (childData) => {
+    const id = Date.now();
+    if(childData.inputValue) {
+      if(choosenTasksParent){
+      choosenTaskWrap.addEventListener("dragstart",    function(e) {
+        handleDragStart(e, e.target);
+      }
+      );
+      
+      choosenTaskWrap.textContent = childData.inputValue;
+      choosenTaskWrap.style.background = childData.colorValue;
+      choosenTaskWrap.classList.add(String(id));
+      const positionList = choosenTasksParent.querySelectorAll('.task-cell');
+      let position = 1;
+      if(positionList.length > 0) {
+        position = positionList.length + 1;
+      }
+      choosenTasksParent.appendChild(choosenTaskWrap);
+      
+      const listClone = [...taskList];
+
+      const elem = Object.assign(childData,{ id: String(id), month: activeMonth, year: activeYear, title: childData.inputValue, day: choosenDay, position: position });
+      listClone.push(elem);
+
+      setTasks(listClone);
+    } else {
+      choosenTaskWrap.textContent = childData.inputValue;
+      choosenTaskWrap.style.background = childData.colorValue;
+      const lastClass = choosenTaskWrap.classList.item(choosenTaskWrap.classList.length - 1);
+      const listClone = [...taskList];
+      const elem = listClone.find(v  => v.id === lastClass); 
+      const indexOf = listClone.indexOf(elem);
+      listClone[indexOf].inputValue = childData.inputValue;
+      listClone[indexOf].colorValue = childData.colorValue;
+
+      setTasks(listClone);
+    }
+    }
+    changeFormState(false);
+  };
 
   const current = React.useCallback((value,e) => {
 
