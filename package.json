@@ -1,6 +1,6 @@
 {
   "name": "test-calendar",
-  "homepage": "https://RomaTes.github.io/testCalendar/",
+  "homepage": "https://RomaTes.github.io/testCalendar",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
