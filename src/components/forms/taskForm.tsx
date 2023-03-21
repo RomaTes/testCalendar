@@ -1,35 +1,36 @@
+
 import React, { useState } from 'react';
 import './taskForm.scss';
 
-const Form = ({ onData }, choosenColor, taskArray) => {
+interface FormProps {
+  onData: (data: {inputValue: string, colorValue: string}) => void;
+  choosenColor: string;
+  inputValueProps: string;
+  taskArray: any[];
+}
 
-    const colorsArray = ['#800000','#FFFF00','#008000','#0000FF'];
-  const [inputValue, setInputValue] = useState('');
-  const [choosenColorValue, setColor] = useState(choosenColor);
+const Form: React.FC<FormProps> = (props: FormProps) => {
+  const colorsArray = ['rgb(128, 0, 0)','rgb(229, 12, 12)','rgb(0, 128, 0)','rgb(0, 0, 255)'];
+  const [inputValue, setInputValue] = useState<string>(props.inputValueProps);
+  const [choosenColorValue, setColor] = useState<string>(props.choosenColor);
 
-  const [choosenColorIndex, setColorIndex] = useState(colorsArray[choosenColor]);
-
-
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Додатковий код для відправки форми
-    onData({inputValue: inputValue, colorValue: choosenColorValue});
+    props.onData({inputValue: inputValue, colorValue: choosenColorValue});
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
-  
-  const chooseColor = (index) => {
-    console.log("INEDEX",index)
-    setColor(colorsArray[index])
-    setColorIndex(index)
+
+  const chooseColor = (index: number) => {
+    setColor(colorsArray[index]);
   };
 
-
   return (
+  
     <form className="form" onSubmit={handleSubmit}>
-      <input
+       <input
         type="text"
         className="form__input"
         value={inputValue}
@@ -46,8 +47,13 @@ const Form = ({ onData }, choosenColor, taskArray) => {
       <button type="submit" className="form__button">
         Відправити
       </button>
+
+
+
+      
     </form>
   );
+
 };
 
 export default Form;

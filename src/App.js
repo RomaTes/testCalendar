@@ -4,8 +4,7 @@ import React from 'react';
 
 function App() {
   React.useEffect(() => {
-    console.log("B");
-   }, []);
+  }, []);
   return (
     <div className="App">
       <CalendarComp/>

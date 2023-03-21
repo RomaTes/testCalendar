@@ -1,0 +1,18 @@
+.search {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 25px;
+
+    >.task-item {
+        height: 35px;
+        width: 80px;
+        border-radius: 10px;
+        color: white;
+
+        &:not(:first-child) {
+            margin-top: 6px;
+            cursor: pointer;
+        }
+    }
+}
