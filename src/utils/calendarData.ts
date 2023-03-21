@@ -1,7 +1,5 @@
 export function createCalendar(month, year) {
-
     const firstDayOfMonth = new Date(year, month, 1);
-    // Define the number of days in the month
     const numDaysInMonth = new Date(year, month + 1, 0).getDate();
     const startingDayOfWeek = firstDayOfMonth.getDay();
 

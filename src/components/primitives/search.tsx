@@ -16,7 +16,6 @@ const Search: React.FC<SearchProps> = (props: SearchProps) => {
     };
 
     const taskClick = (monNumber: number) => {
-        console.log("Mas",monNumber);
         props.onChoose(monNumber);
     };
 

@@ -3,8 +3,9 @@ import React from 'react';
 import '../components/calendar.scss';
 
 //modules
-import * as hovers from '../utils/dragAndDrop.ts';
+import * as drag from '../utils/dragAndDrop.ts';
 import * as  calendar from '../utils/calendarData.ts';
+import * as jsonFunc from '../utils/jsonImportExport.ts'
 
 //components
 import Form from './forms/taskForm.tsx';
@@ -68,7 +69,9 @@ function CalendarComp() {
       
     }, [taskList]);
 
-    React.useEffect(() => {}, [taskList]);
+    React.useEffect(() => {
+      changeMonth(activeMonth);
+    }, [taskList]);
 
     React.useEffect(() => {
       fetch("https://date.nager.at/api/v3/publicholidays/2023/UA")
@@ -184,31 +187,42 @@ function CalendarComp() {
       changeFormState(false);
     };
 
-    const current = React.useCallback((value,e) => {
+  const current = React.useCallback((value,e) => {
 
-      const newDiv = document.createElement('div');
-      setChoosenDay(value);
-      newDiv.classList.add('task-cell');
-      newDiv.setAttribute("draggable","true");
-      setchoosenTaskWrap(newDiv);
+    const newDiv = document.createElement('div');
+    setChoosenDay(value);
+    newDiv.classList.add('task-cell');
+    newDiv.setAttribute("draggable","true");
+    setchoosenTaskWrap(newDiv);
 
-      if(e.classList.contains('tasks'))
-      choosenTasksParentWrap(e);
-      else if(e.classList.contains('task-cell')) {
-        setTaskTekst(e.innerHTML);
-        choosenTasksParentWrap(null);
-        setChoosenColor(e.style.background);
-        setchoosenTaskWrap(e);
-      }
-      else choosenTasksParentWrap(e.querySelector('.tasks'));
+    if(e.classList.contains('tasks'))
+    choosenTasksParentWrap(e);
+    else if(e.classList.contains('task-cell')) {
+      setTaskTekst(e.innerHTML);
+      choosenTasksParentWrap(null);
+      setChoosenColor(e.style.background);
+      setchoosenTaskWrap(e);
+    }
+    else choosenTasksParentWrap(e.querySelector('.tasks'));
 
-      if(isFormOpen) changeFormState(false);
-      else changeFormState(true);
-    }, [isFormOpen]);
+    if(isFormOpen) changeFormState(false);
+    else changeFormState(true);
+  }, [isFormOpen]);
 
-    const searchElement = (month) => { 
-      changeMonth(month);
-    };
+  const searchElement = (month) => { 
+    changeMonth(month);
+  };
+
+  async function loadJsonData() {
+    try {
+      const jsonData = await jsonFunc.importFromJsonFile();
+      setTasks(jsonData);
+      return jsonData;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   return (
     <div>
@@ -218,6 +232,10 @@ function CalendarComp() {
                   <h1>{activeYear} {months[activeMonth]}</h1>
                   <button  onClick={() => changeMonth(activeMonth - 1)}>Previous Month</button>
                   <button onClick={() => changeMonth(activeMonth + 1)}>Next Month</button>
+                </div>
+                <div className="right">
+                  <button  onClick={() => jsonFunc.exportToJSON(taskList)}>Export</button>
+                  <button onClick={() => loadJsonData()}>Import</button>
                 </div>
             </div>
             <div className="days">
@@ -248,7 +266,7 @@ function CalendarComp() {
                     {hoolidaysForThisMonth?.find(v => v.date === `${activeYear }-${activeMonth.length === 2 ? (activeMonth + 1)  : ('0' + (activeMonth + 1))}-${String(item).length === 2 ? (Days[i])  : ('0' + (item))}`).localName}
                   </div> : null}
                   {item}
-                  <div className="tasks" onDragOver={hovers.handleDragOver} onDrop={(e) => handleDrop(e, i+1)} onDragEnter={hovers.handleDragEnter} onDragLeave={hovers.handleDragLeave}></div>
+                  <div className="tasks" onDragOver={drag.handleDragOver} onDrop={(e) => handleDrop(e, i+1)} onDragEnter={drag.handleDragEnter} onDragLeave={drag.handleDragLeave}></div>
               </div>
               ))
             }
