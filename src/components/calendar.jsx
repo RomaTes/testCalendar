@@ -154,7 +154,6 @@ function CalendarComp() {
         }
         );
        
-
         choosenTaskWrap.textContent = childData.inputValue;
         choosenTaskWrap.style.background = childData.colorValue;
         choosenTaskWrap.classList.add(String(id));
